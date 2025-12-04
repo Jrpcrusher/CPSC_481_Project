@@ -15,12 +15,15 @@ def get_legal_moves(tableau, foundation, stock_waste):
         moves.append("mv")
 
     # If there is a card in the waste that can be moved to the foundation, that is a legal move.
-    waste = stock_waste.getWaste()
+    sw = copy.deepcopy(stock_waste)
+    waste = sw.getWaste()
     if waste != 'empty':
         f = copy.deepcopy(foundation)
-        moves.append("wf")
-        if f.addCard(waste):  # test the move safely
-            moves.append("wf")
+        try:
+            if f.addCard(waste):  # test the move safely
+                moves.append("wf")
+        except IndexError:
+            pass
 
     # If there is a card in the waste that can be moved to the tableau, that is a legal move.
     if waste != 'empty':
@@ -36,8 +39,8 @@ def get_legal_moves(tableau, foundation, stock_waste):
         if t.flipped[col]:
             top = t.flipped[col][-1]
             try:
-                f.addCard(top)
-                moves.append(f'tf {col + 1}')
+                if f.addCard(top):  # check return value
+                    moves.append(f'tf {col + 1}')
             except IndexError:
                 continue
 
