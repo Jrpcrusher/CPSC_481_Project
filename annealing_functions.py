@@ -129,7 +129,13 @@ def get_cost(tableau, foundation, stock_waste):
 #  1) Returns the move it selects, passing it to solitaire.py
 #  2) Uses random.py in order to select the moves
 # -------------------------------------------------
-def choose_move(move_probabilities):
-    move = None
+def choose_move(possible_moves):
+    moves = []
+    weights = []
+    for x in range(len(possible_moves)):
+        moves.append(possible_moves[x][1])
+        weights.append(possible_moves[x][2])
+
+    move = random.choices(moves, weights=weights, k=1)[0]
     return move
 # -------------------------------------------------
