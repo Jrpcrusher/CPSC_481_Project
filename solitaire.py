@@ -50,7 +50,8 @@ if __name__ == "__main__":
 
     while not f.gameWon():
         print(">>> Current Board Cost:", get_cost(t, f, sw))
-        get_legal_moves(t, f, sw)
+        print(evaluate_position(t, f, sw, get_legal_moves(t, f, sw)))
+
         command = input("Enter a command (type 'h' for help): ")
         command = command.lower().replace(" ", "")
         if command == "h":
