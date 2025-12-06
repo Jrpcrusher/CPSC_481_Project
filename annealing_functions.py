@@ -95,10 +95,31 @@ def evaluate_position(available_moves):
 #  This function should:
 #  1) Given a move's outcome, it should evaluate the cost of a given move
 #  2) Return the cost of that move
-# -------------------------------------------------
-def get_cost(board_state):
-    move_weights = []
-    return move_weights
+
+def get_cost(tableau, foundation, stock_waste):
+    
+    cost = 0
+
+    # 1. Check the Foundation
+    # We subtract 50 for every card in the foundation to reward the AI.
+    # accessing the dictionary from the Foundation class
+    for suit, stack in foundation.foundation_stacks.items():
+        cost -= (len(stack) * 50)
+
+    # 2. Check the Tableau for Unflipped cards
+    # We add 20 points for every card that is still face-down (unflipped) because we want to uncover them.
+    for col in range(7):
+        # accessing the unflipped list from the Tableau class
+        hidden_cards = tableau.unflipped[col]
+        cost += (len(hidden_cards) * 20)
+
+    # 3. Check Stock and Waste
+    # We want to use the cards in the deck, so we add a small penalty if cards are stuck there.
+    # accessing the deck and waste lists from StockWaste class
+    cost += (len(stock_waste.deck) * 2)
+    cost += (len(stock_waste.waste) * 2)
+
+    return cost
 
 # -------------------------------------------------
 
