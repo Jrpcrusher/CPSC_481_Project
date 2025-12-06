@@ -1,7 +1,9 @@
 from annealing_functions import *
 from solitaire_classes import *
 BREAK_STRING = "-------------------------------------------------------------------"
-
+temperature = 1.0
+MIN_T = 0.01
+ALPHA = 0.99
 def printValidCommands():
     """ Provides the list of commands, for when users press 'h' """
     print("Valid Commands: ")
@@ -50,7 +52,7 @@ if __name__ == "__main__":
 
     while not f.gameWon():
         print(">>> Current Board Cost:", get_cost(t, f, sw))
-        print(evaluate_position(t, f, sw, get_legal_moves(t, f, sw)))
+        print(evaluate_position(t, f, sw, get_legal_moves(t, f, sw,), temperature))
 
         command = input("Enter a command (type 'h' for help): ")
         command = command.lower().replace(" ", "")
@@ -88,6 +90,8 @@ if __name__ == "__main__":
                 print("Error! No card could be moved from that Tableau column.")
         else:
             print("Sorry, that is not a valid command.")
+
+        temperature = max(temperature * ALPHA, MIN_T)
 
     if f.gameWon():
         print("Congratulations! You've won!")

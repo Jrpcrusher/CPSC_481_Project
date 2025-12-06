@@ -68,23 +68,24 @@ def get_legal_moves(tableau, foundation, stock_waste):
 #  2) Given the cost, calculate the probability of going to said mvoes
 #  3) Save the probabilities of all the possible moves, and pass them onto choose_move()
 # -------------------------------------------------
-def evaluate_position(tableau, foundation, stock_waste,available_moves):
+def evaluate_position(tableau, foundation, stock_waste,available_moves, current_temp):
 
     move_weights = []
-    current_temp = 1
     current_cost = get_cost(tableau, foundation, stock_waste)
     for move in available_moves:
         t_new, f_new, sw_new = simulate_move(tableau, foundation, stock_waste, move)
         new_cost = get_cost(t_new, f_new, sw_new)
         delta_E = new_cost - current_cost
+        print("delta_E: ", delta_E,"cost", new_cost)
 
-        if delta_E <= 0:
-            w = 1.0
-        else:
-            if current_temp > 0:
-                w = math.exp(-delta_E / current_temp)
-            else:
-                w = 0.0
+        w = math.exp(-delta_E / current_temp)
+        # if delta_E <= 0:
+        #     w = 1.0
+        # else:
+        #     if current_temp > 0:
+        #         w = math.exp(-delta_E / current_temp)
+        #     else:
+        #         w = 0.0
         move_weights.append([move, w])
     print("results of SA: ", move_weights)
     return move_weights
