@@ -1,5 +1,6 @@
 from annealing_functions import *
 from solitaire_classes import *
+import time
 BREAK_STRING = "-------------------------------------------------------------------"
 temperature = 1.0
 MIN_T = 0.01
@@ -40,6 +41,7 @@ def printTable(tableau, foundation, stock_waste):
     print("\n"+BREAK_STRING)
 
 if __name__ == "__main__":
+    move_count = 0
     d = Deck()
     t = Tableau([d.deal_cards(x) for x in range(1,8)])
     f = Foundation()
@@ -52,9 +54,10 @@ if __name__ == "__main__":
 
     while not f.gameWon():
         print(">>> Current Board Cost:", get_cost(t, f, sw))
-        print(evaluate_position(t, f, sw, get_legal_moves(t, f, sw,), temperature))
-
-        command = input("Enter a command (type 'h' for help): ")
+        available_moves = evaluate_position(t, f, sw, get_legal_moves(t, f, sw,), temperature)
+        move = choose_move(available_moves)
+        print("Move chosen is: ", move)
+        command = move
         command = command.lower().replace(" ", "")
         if command == "h":
             printValidCommands()
@@ -92,6 +95,8 @@ if __name__ == "__main__":
             print("Sorry, that is not a valid command.")
 
         temperature = max(temperature * ALPHA, MIN_T)
-
+        time.sleep(.05)
+        move_count += 1
     if f.gameWon():
         print("Congratulations! You've won!")
+        print("Move Count: ", move_count)

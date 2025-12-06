@@ -1,13 +1,14 @@
 import copy
 import math
-import random # We will need this in order to pick a random state after we calculate the probability
+import random  # We will need this in order to pick a random state after we calculate the probability
+
+
 # TODO: If not derivable from the game state in solitare.py, make a function that contains
 #  all the legal moves available
 #  1) Take the current game state, and find all legal moves
 #  2) Return all legal moves in a list for our evaluate_position()
 # -------------------------------------------------
 def get_legal_moves(tableau, foundation, stock_waste):
-    print("We are in get_legal_moves()")
     moves = []
     # we will use deep copies of the tableau, foundation, and stock_waste in order to test the game state
 
@@ -52,13 +53,14 @@ def get_legal_moves(tableau, foundation, stock_waste):
         for index in range(len(c1_cards)):
             moving = c1_cards[index:]
             for col_2 in range(7):
-                if col_1 == col_2: # Don't check the column we are already in!
+                if col_1 == col_2:  # Don't check the column we are already in!
                     continue
                 if t.addCards(moving, col_2):
                     moves.append(f'tt {col_1 + 1} {col_2 + 1}')
 
-    print('the legal moves so far are:', moves)
+    #print('the legal moves so far are:', moves)
     return moves
+
 
 # -------------------------------------------------
 
@@ -68,45 +70,33 @@ def get_legal_moves(tableau, foundation, stock_waste):
 #  2) Given the cost, calculate the probability of going to said mvoes
 #  3) Save the probabilities of all the possible moves, and pass them onto choose_move()
 # -------------------------------------------------
-def evaluate_position(tableau, foundation, stock_waste,available_moves, current_temp):
-
+def evaluate_position(tableau, foundation, stock_waste, available_moves, current_temp):
     move_weights = []
     current_cost = get_cost(tableau, foundation, stock_waste)
+
+    # Compute raw SA weights
     for move in available_moves:
         t_new, f_new, sw_new = simulate_move(tableau, foundation, stock_waste, move)
         new_cost = get_cost(t_new, f_new, sw_new)
         delta_E = new_cost - current_cost
-        print("delta_E: ", delta_E,"cost", new_cost)
 
-        w = math.exp(-delta_E / current_temp)
-        # if delta_E <= 0:
-        #     w = 1.0
-        # else:
-        #     if current_temp > 0:
-        #         w = math.exp(-delta_E / current_temp)
-        #     else:
-        #         w = 0.0
-        move_weights.append([move, w])
-    print("results of SA: ", move_weights)
-    return move_weights
-    ''' SAMPLE CODE FOR THE SA FUNCTION:
-        current = initial_state
-    T = initial_temperature
-
-    while T > minimum_temperature:
-        next = random_neighbor(current)
-        ΔE = get_cost(next) - get_cost(current) <-- Move this, dont calculate get_cost(current) every time
-
-        if ΔE < 0:
-            current = next            # Accept better move
+        # Use exp(delta_E / T) for all moves
+        if current_temp > 0:
+            w = math.exp(delta_E / current_temp)
         else:
-            p = exp(-ΔE / T)         
-            if random(0,1) < p:
-                current = next        # Accept worse move with probability p
+            w = 1.0 if delta_E >= 0 else 0.0
 
-        T = decrease_temperature(T)   # Cooling schedule
-    '''
+        move_weights.append([move, w])
+    # Normalize to probabilities
+    total_weight = 0
+    move_probabilities = []
+    for _, w in move_weights:
+        total_weight += w
 
+    for m, w in move_weights:
+        move_probabilities.append([m, round(w/ total_weight, 20)])
+    #print("results of SA (probabilities):", move_probabilities)
+    return move_probabilities
 
 # -------------------------------------------------
 
@@ -144,29 +134,29 @@ def simulate_move(tableau, foundation, stock_waste, move):
 #  2) Return the cost of that move
 
 def get_cost(tableau, foundation, stock_waste):
-    
     cost = 0
 
     # 1. Check the Foundation
     # We subtract 50 for every card in the foundation to reward the AI.
     # accessing the dictionary from the Foundation class
     for suit, stack in foundation.foundation_stacks.items():
-        cost -= (len(stack) * 50)
+        cost += (len(stack) * 20)
 
     # 2. Check the Tableau for Unflipped cards
     # We add 20 points for every card that is still face-down (unflipped) because we want to uncover them.
     for col in range(7):
         # accessing the unflipped list from the Tableau class
         hidden_cards = tableau.unflipped[col]
-        cost += (len(hidden_cards) * 20)
+        cost -= (len(hidden_cards) * 20)
 
     # 3. Check Stock and Waste
     # We want to use the cards in the deck, so we add a small penalty if cards are stuck there.
     # accessing the deck and waste lists from StockWaste class
-    cost += (len(stock_waste.deck) * 2)
-    cost += (len(stock_waste.waste) * 2)
+    cost -= (len(stock_waste.deck) * 2)
+    cost -= (len(stock_waste.waste) * 2)
 
     return cost
+
 
 # -------------------------------------------------
 
@@ -179,10 +169,8 @@ def get_cost(tableau, foundation, stock_waste):
 def choose_move(possible_moves):
     moves = []
     weights = []
-    for x in range(len(possible_moves)):
-        moves.append(possible_moves[x][1])
-        weights.append(possible_moves[x][2])
-
-    move = random.choices(moves, weights=weights, k=1)[0]
-    return move
+    for move, weight in possible_moves:
+        moves.append(move)
+        weights.append(weight)
+    return random.choices(moves, weights=weights, k=1)[0]
 # -------------------------------------------------
