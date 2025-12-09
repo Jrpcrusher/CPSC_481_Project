@@ -58,6 +58,7 @@ if __name__ == "__main__":
         move = choose_move(available_moves)
         print("Move chosen is: ", move)
         command = move
+        # command = input("Enter a command (type 'h' for help): ")
         command = command.lower().replace(" ", "")
         if command == "h":
             printValidCommands()
@@ -95,8 +96,11 @@ if __name__ == "__main__":
             print("Sorry, that is not a valid command.")
 
         temperature = max(temperature * ALPHA, MIN_T)
-        time.sleep(.05)
+        # time.sleep(1)
         move_count += 1
+        if get_cost(t, f, sw) < 1020 and move_count > 1000:
+            print("We have reached an unsolvable state, exiting.")
+            exit(0)
     if f.gameWon():
         print("Congratulations! You've won!")
         print("Move Count: ", move_count)

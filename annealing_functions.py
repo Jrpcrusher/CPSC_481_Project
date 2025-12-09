@@ -58,7 +58,7 @@ def get_legal_moves(tableau, foundation, stock_waste):
                 if t.addCards(moving, col_2):
                     moves.append(f'tt {col_1 + 1} {col_2 + 1}')
 
-    #print('the legal moves so far are:', moves)
+    # print('the legal moves so far are:', moves)
     return moves
 
 
@@ -94,8 +94,8 @@ def evaluate_position(tableau, foundation, stock_waste, available_moves, current
         total_weight += w
 
     for m, w in move_weights:
-        move_probabilities.append([m, round(w/ total_weight, 20)])
-    #print("results of SA (probabilities):", move_probabilities)
+        move_probabilities.append([m, w/ total_weight])
+    # print("results of SA (probabilities):", move_probabilities)
     return move_probabilities
 
 # -------------------------------------------------
